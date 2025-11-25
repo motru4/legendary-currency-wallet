@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package exchange;
+
+option go_package = "github.com/motru4/legendary-currency-wallet/proto/exchange;exchange";
+
+enum Currency {
+  CURRENCY_UNSPECIFIED = 0;
+  USD = 1;
+  EUR = 2;
+  RUB = 3;
+}
+
+service ExchangeService {
+  rpc GetExchangeRates(ExchangeRatesRequest) returns (ExchangeRatesResponse);
+  rpc GetExchangeRateForCurrency(CurrencyPairRequest) returns (ExchangeRateResponse);
+}
+
+message ExchangeRatesRequest {
+  // The base currency relative to which the rates will be returned
+  Currency base_currency = 1; // defaults to USD
+}
+
+message CurrencyPairRequest {
+  Currency from_currency = 1;
+  Currency to_currency = 2;
+}
+
+message ExchangeRateResponse {
+  Currency from_currency = 1;
+  Currency to_currency = 2;
+
+  double rate = 3; // 1 from_currency = rate to_currency
+
+  // When the exchange rate was updated
+  int64 updated_at_unix = 4;
+}
+
+message ExchangeRatesResponse {
+  Currency base_currency = 1;
+  map<string, double> rates = 2;
+}
