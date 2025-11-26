@@ -1,0 +1,55 @@
+services:
+  exchanger-postgres:
+    image: postgres:16-alpine
+    container_name: exchanger-postgres
+    env_file:
+      - ./.env
+    environment:
+      POSTGRES_DB: ${EXCHANGER_DB_NAME}
+      POSTGRES_USER: ${EXCHANGER_DB_USER}
+      POSTGRES_PASSWORD: ${EXCHANGER_DB_PASSWORD}
+    ports:
+      - "5435:5432"
+    volumes:
+      - exchanger-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${EXCHANGER_DB_USER} -d ${EXCHANGER_DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  exchanger-migrations:
+    build:
+      context: .
+      dockerfile: migrations/exchanger-db/Dockerfile
+    depends_on:
+      exchanger-postgres:
+        condition: service_healthy
+    env_file:
+      - ./.env
+    working_dir: /migrations
+    volumes:
+      - ./migrations/exchanger-db:/migrations
+    environment:
+      GOOSE_DRIVER: postgres
+      GOOSE_DBSTRING: ${EXCHANGER_DB_DSN}
+    entrypoint: ["goose"]
+
+  exchanger:
+    build:
+      context: .
+      dockerfile: services/exchanger/Dockerfile
+    container_name: exchanger
+    restart: unless-stopped
+    depends_on:
+      exchanger-postgres:
+        condition: service_healthy
+    env_file:
+      - ./.env
+    command: ["/app/exchanger"]
+    ports:
+      - "50051:50051"
+
+volumes:
+  exchanger-postgres-data:
