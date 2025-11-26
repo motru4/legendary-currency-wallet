@@ -85,7 +85,7 @@ func (s *ExchangeServiceServer) GetExchangeRateForCurrency(
 		FromCurrency:  req.FromCurrency,
 		ToCurrency:    req.ToCurrency,
 		Rate:          rateModel.Rate,
-		UpdatedAtUnix: time.Now().Unix(), //rateModel.UpdatedAt.Unix(),
+		UpdatedAtUnix: time.Now().Unix(), //в данной реалицации данные в бд не обновляются, при добавлении этой функциональности использовать - rateModel.UpdatedAt.Unix(),
 	}
 
 	s.log.Debug("rate returned",
