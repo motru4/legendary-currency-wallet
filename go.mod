@@ -3,6 +3,8 @@ module github.com/motru4/legendary-currency-wallet
 go 1.25.3
 
 require (
+	github.com/jmoiron/sqlx v1.4.0
+	github.com/lib/pq v1.10.9
 	google.golang.org/grpc v1.77.0
 	google.golang.org/protobuf v1.36.10
 )
